@@ -1,4 +1,9 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": null,
   "functions": {
     "api/**/*.js": {
       "maxDuration": 30
@@ -45,7 +50,7 @@
           "value": "http"
         }
       ],
-      "destination": "https://o7chub.com",
+      "destination": "https://hub.o7chub.com",
       "permanent": true
     }
   ]
