@@ -12,9 +12,28 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+// Check if Firebase is properly configured
+const isFirebaseConfigured = firebaseConfig.apiKey && 
+  firebaseConfig.apiKey !== 'undefined' && 
+  firebaseConfig.projectId && 
+  firebaseConfig.projectId !== 'undefined';
+
+let app, auth;
+
+if (isFirebaseConfigured) {
+  try {
+    // Initialize Firebase
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    console.log('Firebase initialized successfully');
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+    auth = null;
+  }
+} else {
+  console.warn('Firebase not configured. Please set environment variables.');
+  auth = null;
+}
 
 const AuthContext = createContext();
 
@@ -32,6 +51,13 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
+    if (!auth) {
+      // If Firebase is not configured, set up demo mode
+      console.log('Running in demo mode - Firebase not configured');
+      setLoading(false);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       if (user) {
@@ -54,6 +80,29 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
+    if (!auth) {
+      // Demo mode - simulate login
+      if (email === 'demo@example.com' && password === 'demo123') {
+        const mockUser = {
+          uid: 'demo-user',
+          email: 'demo@example.com',
+          displayName: 'Demo User'
+        };
+        setUser(mockUser);
+        setUserData({
+          id: 'demo-user',
+          email: 'demo@example.com',
+          role: 'admin',
+          status: 'approved',
+          firstName: 'Demo',
+          lastName: 'User'
+        });
+        return { user: mockUser, userData: null };
+      } else {
+        throw new Error('Demo mode: Use demo@example.com / demo123');
+      }
+    }
+
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       return { user: userCredential.user, userData: null };
@@ -64,6 +113,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    if (!auth) {
+      // Demo mode logout
+      setUser(null);
+      setUserData(null);
+      return;
+    }
     await signOut(auth);
   };
 
@@ -75,6 +130,7 @@ export const AuthProvider = ({ children }) => {
     isAuthorized: !!user,
     login,
     logout,
+    isDemo: !auth,
   };
 
   return (
