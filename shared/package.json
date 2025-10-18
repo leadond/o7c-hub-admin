@@ -2,6 +2,7 @@
   "name": "@o7c/shared",
   "version": "1.0.0",
   "description": "Shared components and utilities for O7C Hub ecosystem",
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",

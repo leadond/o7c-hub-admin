@@ -1,8 +1,8 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import { getAnalytics } from 'firebase/analytics';
+import { initializeApp, type FirebaseApp } from 'firebase/app';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
+import { getAnalytics, type Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,50 +14,13 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Firebase configuration loaded from environment variables
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-// Check if Firebase config is properly set
-const isFirebaseConfigured = firebaseConfig.apiKey && 
-  firebaseConfig.apiKey !== 'demo-api-key' && 
-  !firebaseConfig.apiKey.includes('your_actual');
+// Initialize Firebase services
+export const auth: Auth = getAuth(app);
+export const db: Firestore = getFirestore(app);
+export const storage: FirebaseStorage = getStorage(app);
+export const analytics: Analytics | null = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
-let app, auth, db, storage, analytics;
-
-if (isFirebaseConfigured) {
-  try {
-    // Initialize Firebase
-    app = initializeApp(firebaseConfig);
-    
-    // Initialize Firebase Authentication and get a reference to the service
-    auth = getAuth(app);
-    
-    // Initialize Firestore
-    db = getFirestore(app);
-    
-    // Initialize Storage
-    storage = getStorage(app);
-    
-    // Initialize Analytics (only in browser environment)
-    if (typeof window !== 'undefined') {
-      analytics = getAnalytics(app);
-    }
-    
-    console.log('Firebase initialized successfully');
-  } catch (error) {
-    console.warn('Firebase initialization failed:', error);
-    // Create mock objects for development
-    auth = null;
-    db = null;
-    storage = null;
-    analytics = null;
-  }
-} else {
-  console.warn('Firebase not configured. Using mock objects for development.');
-  auth = null;
-  db = null;
-  storage = null;
-  analytics = null;
-}
-
-export { auth, db, storage, analytics };
 export default app;

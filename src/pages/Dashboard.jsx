@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@o7c/shared';
+import { Card, CardContent, CardHeader, CardTitle } from '../mocks/shared';
 
 const Dashboard = () => {
   return (

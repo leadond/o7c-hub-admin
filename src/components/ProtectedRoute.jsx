@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { useAuth } from '@o7c/shared';
+import { useAuth, hasPermission, hasAnyPermission, shouldRedirectUser, getRedirectUrl } from '../mocks/shared';
 import { Navigate } from 'react-router-dom';
-import { hasPermission, hasAnyPermission } from '@o7c/shared';
-import { shouldRedirectUser, getRedirectUrl } from '@o7c/shared';
 
 const ProtectedRoute = ({
   children,

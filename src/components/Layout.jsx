@@ -1,6 +1,5 @@
-import { useAuth } from '@o7c/shared';
+import { useAuth, shouldRedirectUser, getRedirectUrl } from '../mocks/shared';
 import { Navigate } from 'react-router-dom';
-import { shouldRedirectUser, getRedirectUrl } from '@o7c/shared';
 
 const Layout = ({ children }) => {
   const { user, userData, loading, userDataLoading, logout } = useAuth();

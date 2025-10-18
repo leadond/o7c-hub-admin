@@ -1,9 +1,6 @@
-export interface User {
-  uid: string;
-  email: string;
-  displayName?: string;
-  emailVerified: boolean;
-}
+import { User as FirebaseUser } from "firebase/auth";
+
+export type User = FirebaseUser; // Use Firebase type directly
 
 export interface UserData {
   id: string;
@@ -23,6 +20,9 @@ export interface AuthContextType {
   loading: boolean;
   userDataLoading: boolean;
   isAuthorized: boolean;
-  login: (email: string, password: string) => Promise<{ user: User; userData: UserData | null }>;
+  login: (email: string, password: string) => Promise<{
+    user: User | null;
+    userData: UserData | null;
+  }>;
   logout: () => Promise<void>;
 }

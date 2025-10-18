@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         // Check if this is an admin email that needs userData created
         const adminEmails = ['leadond@gmail.com', 'kleadon11@gmail.com'];
-        if (user && adminEmails.includes(user.email)) {
+        if (user && user.email && adminEmails.includes(user.email)) {
           const emailUsers = await filterUsers({ email: user.email });
 
           if (emailUsers && emailUsers.length > 0) {
@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: firebaseUid,
           role,
           status: 'approved',
-          email: user?.email || (port === '3001' ? 'player@example.com' : 'admin@example.com'),
+          email: user?.email ?? (port === '3001' ? 'player@example.com' : 'admin@example.com'),
           name: port === '3001' ? 'Development Player' : 'Development Admin'
         };
         setUserData(mockUserData as any);
@@ -83,13 +83,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    // If Firebase auth is not available, show error and set loading to false
-    if (!auth) {
-      console.error('Firebase auth not available. Please check your Firebase configuration.');
-      setLoading(false);
-      return;
-    }
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
@@ -123,11 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  const login = async (email: string, password: string) => {
-    if (!auth) {
-      throw new Error('Firebase authentication is not available. Please check your Firebase configuration.');
-    }
-    
+  const login = async (email: string, password: string): Promise<{ user: User | null; userData: UserData | null }> => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -143,17 +132,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    if (!auth) {
-      console.warn('Firebase auth not available. Clearing mock session.');
-      setUser(null);
-      setUserData(null);
-      return;
-    }
     await signOut(auth);
   };
 
   const adminEmails = ['leadond@gmail.com', 'kleadon11@gmail.com'];
-  const isAdminEmail = user ? adminEmails.includes(user.email) : false;
+  const isAdminEmail = user && user.email ? adminEmails.includes(user.email) : false;
 
   const isAuthorized = userData
     ? (userData.status === 'approved' && !!userData.role) || (userData.status !== 'pending' && !!userData.role)

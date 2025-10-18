@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@o7c/shared';
+import { useAuth } from '../mocks/shared';
 
 const Recruiting = () => {
   const { userData } = useAuth();

@@ -1,6 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from '@o7c/shared';
-import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import Roster from './pages/Roster';
 import Recruiting from './pages/Recruiting';
@@ -10,41 +8,31 @@ import './App.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Protected routes with O7C Hub access */}
-          <Route path="/" element={
-            <ProtectedRoute allowedRoles={['admin', 'coach']}>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
-          } />
-          <Route path="/roster" element={
-            <ProtectedRoute allowedRoles={['admin', 'coach']}>
-              <Layout>
-                <Roster />
-              </Layout>
-            </ProtectedRoute>
-          } />
-          <Route path="/recruiting" element={
-            <ProtectedRoute allowedRoles={['admin', 'coach']}>
-              <Layout>
-                <Recruiting />
-              </Layout>
-            </ProtectedRoute>
-          } />
-          <Route path="/users" element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <Layout>
-                <UserManagement />
-              </Layout>
-            </ProtectedRoute>
-          } />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <Router>
+      <Routes>
+        {/* Temporarily remove auth - direct access to all routes */}
+        <Route path="/" element={
+          <Layout>
+            <Dashboard />
+          </Layout>
+        } />
+        <Route path="/roster" element={
+          <Layout>
+            <Roster />
+          </Layout>
+        } />
+        <Route path="/recruiting" element={
+          <Layout>
+            <Recruiting />
+          </Layout>
+        } />
+        <Route path="/users" element={
+          <Layout>
+            <UserManagement />
+          </Layout>
+        } />
+      </Routes>
+    </Router>
   );
 }
 
