@@ -1,4 +1,4 @@
-import { useAuth, shouldRedirectUser, getRedirectUrl } from '../mocks/shared';
+import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
 const Layout = ({ children }) => {

@@ -1,4 +1,27 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../mocks/shared';
+// Simple Card components for Dashboard
+const Card = ({ children, className = '' }) => (
+  <div className={`bg-white shadow rounded-lg ${className}`}>
+    {children}
+  </div>
+);
+
+const CardContent = ({ children, className = '' }) => (
+  <div className={`p-6 ${className}`}>
+    {children}
+  </div>
+);
+
+const CardHeader = ({ children, className = '' }) => (
+  <div className={`px-6 py-4 border-b ${className}`}>
+    {children}
+  </div>
+);
+
+const CardTitle = ({ children, className = '' }) => (
+  <h3 className={`text-lg font-medium ${className}`}>
+    {children}
+  </h3>
+);
 
 const Dashboard = () => {
   return (
