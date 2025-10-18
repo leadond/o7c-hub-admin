@@ -7,8 +7,33 @@ const Roster = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch roster data
-    setLoading(false);
+    const fetchPlayers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/base44', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            method: 'GET',
+            path: '/Player'
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const playersData = data?.data || data || [];
+          setPlayers(Array.isArray(playersData) ? playersData : []);
+        } else {
+          console.error('Failed to fetch players:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching players:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlayers();
   }, []);
 
   if (loading) {
@@ -41,9 +66,24 @@ const Roster = () => {
           ) : (
             <div className="grid gap-4">
               {players.map((player) => (
-                <div key={player.id} className="border rounded-lg p-4">
-                  <h3 className="font-medium">{player.name}</h3>
-                  <p className="text-sm text-gray-600">{player.position}</p>
+                <div key={player.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium text-lg">{player.firstName} {player.lastName}</h3>
+                      <p className="text-sm text-gray-600">{player.position || 'Position not set'}</p>
+                      <p className="text-sm text-gray-500">Jersey: #{player.jerseyNumber || 'N/A'}</p>
+                      {player.stars && (
+                        <div className="flex items-center mt-1">
+                          <span className="text-yellow-500">{'★'.repeat(player.stars)}</span>
+                          <span className="text-gray-300">{'☆'.repeat(5 - player.stars)}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Height: {player.height || 'N/A'}</p>
+                      <p className="text-sm text-gray-500">Weight: {player.weight || 'N/A'}</p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

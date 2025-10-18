@@ -7,8 +7,33 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch users data
-    setLoading(false);
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/base44', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            method: 'GET',
+            path: '/AppUser'
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const usersData = data?.data || data || [];
+          setUsers(Array.isArray(usersData) ? usersData : []);
+        } else {
+          console.error('Failed to fetch users:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   if (loading) {
@@ -31,19 +56,19 @@ const UserManagement = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Total Users</h3>
-          <p className="text-3xl font-bold text-blue-600">0</p>
+          <p className="text-3xl font-bold text-blue-600">{users.length}</p>
         </div>
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Coaches</h3>
-          <p className="text-3xl font-bold text-green-600">0</p>
+          <p className="text-3xl font-bold text-green-600">{users.filter(u => u.role === 'coach').length}</p>
         </div>
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Players</h3>
-          <p className="text-3xl font-bold text-purple-600">0</p>
+          <p className="text-3xl font-bold text-purple-600">{users.filter(u => u.role === 'player').length}</p>
         </div>
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Pending</h3>
-          <p className="text-3xl font-bold text-orange-600">0</p>
+          <p className="text-3xl font-bold text-orange-600">{users.filter(u => u.status === 'pending').length}</p>
         </div>
       </div>
 
@@ -83,19 +108,21 @@ const UserManagement = () => {
                   {users.map((user) => (
                     <tr key={user.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {user.name}
+                        {user.firstName} {user.lastName}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {user.email}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
                         {user.role}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           user.status === 'approved' 
                             ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                            : user.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
                         }`}>
                           {user.status}
                         </span>

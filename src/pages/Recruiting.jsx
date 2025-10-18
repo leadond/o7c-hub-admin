@@ -7,8 +7,33 @@ const Recruiting = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch recruiting prospects data
-    setLoading(false);
+    const fetchRecruitingData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/base44', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            method: 'GET',
+            path: '/RecruitingInterest'
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const prospectsData = data?.data || data || [];
+          setProspects(Array.isArray(prospectsData) ? prospectsData : []);
+        } else {
+          console.error('Failed to fetch recruiting data:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching recruiting data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecruitingData();
   }, []);
 
   if (loading) {
@@ -31,15 +56,15 @@ const Recruiting = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Active Prospects</h3>
-          <p className="text-3xl font-bold text-blue-600">0</p>
+          <p className="text-3xl font-bold text-blue-600">{prospects.filter(p => p.status === 'active').length}</p>
         </div>
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Committed</h3>
-          <p className="text-3xl font-bold text-green-600">0</p>
+          <p className="text-3xl font-bold text-green-600">{prospects.filter(p => p.status === 'committed').length}</p>
         </div>
         <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">This Month</h3>
-          <p className="text-3xl font-bold text-purple-600">0</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Total Prospects</h3>
+          <p className="text-3xl font-bold text-purple-600">{prospects.length}</p>
         </div>
       </div>
 
@@ -56,9 +81,25 @@ const Recruiting = () => {
           ) : (
             <div className="grid gap-4">
               {prospects.map((prospect) => (
-                <div key={prospect.id} className="border rounded-lg p-4">
-                  <h3 className="font-medium">{prospect.name}</h3>
-                  <p className="text-sm text-gray-600">{prospect.position} • {prospect.school}</p>
+                <div key={prospect.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium text-lg">{prospect.playerName || 'Unknown Player'}</h3>
+                      <p className="text-sm text-gray-600">{prospect.position || 'Position not set'} • {prospect.schoolName || 'School not set'}</p>
+                      <p className="text-sm text-gray-500">Interest Level: {prospect.interestLevel || 'Not set'}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        prospect.status === 'committed' 
+                          ? 'bg-green-100 text-green-800'
+                          : prospect.status === 'active'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {prospect.status || 'Unknown'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
