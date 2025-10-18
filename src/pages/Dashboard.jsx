@@ -39,9 +39,11 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+        console.log('Dashboard: Starting data fetch...');
         
-        // Fetch players
-        const playersResponse = await fetch('/api/base44', {
+        // Test Base44 API connection first
+        console.log('Dashboard: Testing Base44 API connection...');
+        const testResponse = await fetch('/api/base44', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -49,36 +51,41 @@ const Dashboard = () => {
             path: '/Player'
           })
         });
+
+        console.log('Dashboard: Base44 API response status:', testResponse.status);
         
-        // Fetch teams
-        const teamsResponse = await fetch('/api/base44', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            method: 'GET',
-            path: '/Team'
-          })
-        });
+        if (!testResponse.ok) {
+          const errorData = await testResponse.json();
+          console.error('Dashboard: Base44 API error:', errorData);
+          throw new Error(`Base44 API Error: ${errorData.error || 'Unknown error'}`);
+        }
 
-        // Fetch users for pending approvals
-        const usersResponse = await fetch('/api/base44', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            method: 'GET',
-            path: '/AppUser'
+        const testData = await testResponse.json();
+        console.log('Dashboard: Base44 API test response:', testData);
+        
+        // Fetch all data
+        const [playersResponse, teamsResponse, usersResponse, recruitingResponse] = await Promise.all([
+          fetch('/api/base44', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ method: 'GET', path: '/Player' })
+          }),
+          fetch('/api/base44', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ method: 'GET', path: '/Team' })
+          }),
+          fetch('/api/base44', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ method: 'GET', path: '/AppUser' })
+          }),
+          fetch('/api/base44', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ method: 'GET', path: '/RecruitingInterest' })
           })
-        });
-
-        // Fetch recruiting interests
-        const recruitingResponse = await fetch('/api/base44', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            method: 'GET',
-            path: '/RecruitingInterest'
-          })
-        });
+        ]);
 
         const [players, teams, users, recruiting] = await Promise.all([
           playersResponse.json(),
@@ -87,11 +94,20 @@ const Dashboard = () => {
           recruitingResponse.json()
         ]);
 
+        console.log('Dashboard: Fetched data:', { players, teams, users, recruiting });
+
         // Calculate stats
         const playersData = players?.data || players || [];
         const teamsData = teams?.data || teams || [];
         const usersData = users?.data || users || [];
         const recruitingData = recruiting?.data || recruiting || [];
+
+        console.log('Dashboard: Processed data:', { 
+          playersCount: playersData.length, 
+          teamsCount: teamsData.length,
+          usersCount: usersData.length,
+          recruitingCount: recruitingData.length
+        });
 
         setStats({
           totalPlayers: Array.isArray(playersData) ? playersData.length : 0,
@@ -101,7 +117,7 @@ const Dashboard = () => {
         });
 
       } catch (err) {
-        console.error('Error fetching dashboard data:', err);
+        console.error('Dashboard: Error fetching data:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -125,7 +141,26 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold text-gray-900">O7C Hub Dashboard</h1>
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-red-800">Error loading dashboard data: {error}</p>
-          <p className="text-sm text-red-600 mt-2">Check your Base44 API configuration.</p>
+          <p className="text-sm text-red-600 mt-2">Check your Base44 API configuration in Vercel environment variables.</p>
+          <div className="mt-4 text-xs text-red-600">
+            <p>Required environment variables:</p>
+            <ul className="list-disc list-inside mt-1">
+              <li>BASE44_API_KEY</li>
+              <li>BASE44_APP_ID</li>
+            </ul>
+          </div>
+        </div>
+        
+        {/* Debug info */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+          <p className="text-yellow-800 font-medium">Debug Information:</p>
+          <p className="text-sm text-yellow-700 mt-1">Check browser console for detailed error logs.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-2 px-3 py-1 bg-yellow-200 text-yellow-800 rounded text-sm hover:bg-yellow-300"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );

@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Roster from './pages/Roster';
 import Recruiting from './pages/Recruiting';
 import UserManagement from './pages/UserManagement';
+import ApiTest from './pages/ApiTest';
 import Layout from './components/Layout';
 import './App.css';
 
@@ -39,6 +40,13 @@ function App() {
             <ProtectedRoute allowedRoles={['admin']}>
               <Layout>
                 <UserManagement />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/api-test" element={
+            <ProtectedRoute allowedRoles={['admin', 'coach']}>
+              <Layout>
+                <ApiTest />
               </Layout>
             </ProtectedRoute>
           } />

@@ -1,8 +1,9 @@
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link, useLocation } from 'react-router-dom';
 
 const Layout = ({ children }) => {
   const { user, userData, loading, userDataLoading, logout } = useAuth();
+  const location = useLocation();
 
   // Show loading spinner while checking authentication
   if (loading || userDataLoading) {
@@ -46,20 +47,58 @@ const Layout = ({ children }) => {
 
             {/* Navigation */}
             <nav className="flex-1 px-4 py-6 space-y-2">
-              <a href="/" className="flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-md">
+              <Link 
+                to="/" 
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                  location.pathname === '/' 
+                    ? 'text-blue-700 bg-blue-100' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
                 <span>Dashboard</span>
-              </a>
-              <a href="/roster" className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-md">
+              </Link>
+              <Link 
+                to="/roster" 
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                  location.pathname === '/roster' 
+                    ? 'text-blue-700 bg-blue-100' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
                 <span>Roster</span>
-              </a>
-              <a href="/recruiting" className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-md">
+              </Link>
+              <Link 
+                to="/recruiting" 
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                  location.pathname === '/recruiting' 
+                    ? 'text-blue-700 bg-blue-100' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
                 <span>Recruiting</span>
-              </a>
+              </Link>
               {userData?.role === 'admin' && (
-                <a href="/users" className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-md">
+                <Link 
+                  to="/users" 
+                  className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                    location.pathname === '/users' 
+                      ? 'text-blue-700 bg-blue-100' 
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
                   <span>User Management</span>
-                </a>
+                </Link>
               )}
+              <Link 
+                to="/api-test" 
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                  location.pathname === '/api-test' 
+                    ? 'text-blue-700 bg-blue-100' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <span>API Test</span>
+              </Link>
             </nav>
 
             {/* User info */}
