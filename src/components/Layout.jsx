@@ -30,12 +30,7 @@ const Layout = ({ children }) => {
     );
   }
 
-  // Check role-based app access and redirect if needed
-  if (shouldRedirectUser(userData.role)) {
-    const redirectUrl = getRedirectUrl(userData.role);
-    window.location.href = redirectUrl;
-    return null;
-  }
+  // Layout is now ready to render
 
   // O7C Hub Layout with Navigation
   return (
