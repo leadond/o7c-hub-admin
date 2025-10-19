@@ -9,6 +9,31 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed. Use POST.' });
   }
 
+  // Debug environment variables
+  console.log('[Base44 Proxy] Environment check:', {
+    hasApiKey: !!process.env.BASE44_API_KEY,
+    hasAppId: !!process.env.BASE44_APP_ID,
+    apiKeyLength: process.env.BASE44_API_KEY ? process.env.BASE44_API_KEY.length : 0,
+    appIdLength: process.env.BASE44_APP_ID ? process.env.BASE44_APP_ID.length : 0
+  });
+
+  // Check if environment variables are set
+  if (!process.env.BASE44_API_KEY) {
+    console.error('[Base44 Proxy] BASE44_API_KEY not set');
+    return res.status(500).json({ 
+      error: 'BASE44_API_KEY environment variable not configured',
+      debug: 'Check Vercel environment variables'
+    });
+  }
+
+  if (!process.env.BASE44_APP_ID) {
+    console.error('[Base44 Proxy] BASE44_APP_ID not set');
+    return res.status(500).json({ 
+      error: 'BASE44_APP_ID environment variable not configured',
+      debug: 'Check Vercel environment variables'
+    });
+  }
+
   try {
     const { method, path, body, query } = req.body;
 
@@ -57,11 +82,14 @@ export default async function handler(req, res) {
     }
 
     console.log(`[Base44 Proxy] ${method.toUpperCase()} ${fullUrl}`);
+    console.log('[Base44 Proxy] Request headers:', headers);
+    console.log('[Base44 Proxy] Request options:', requestOptions);
 
     // Make request to Base44 API
     const response = await fetch(fullUrl, requestOptions);
 
     console.log(`[Base44 Proxy] Response status: ${response.status} ${response.statusText}`);
+    console.log('[Base44 Proxy] Response headers:', Object.fromEntries(response.headers.entries()));
 
     // Handle response
     if (!response.ok) {
